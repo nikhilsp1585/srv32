@@ -5,7 +5,7 @@ EXE      = .elf
 SRC      = hello.c
 CFLAGS  += -L../common
 LDFLAGS += -T ../common/default.ld
-TARGET   = hello
+TARGET   = $(basename $(SRC))
 OUTPUT   = $(TARGET)$(EXE)
 
 .PHONY: all clean
