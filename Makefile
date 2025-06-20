@@ -5,6 +5,8 @@ endif
 
 dirs        = $(dir $(wildcard sw/[^_]*/))
 SUBDIRS     = $(subst /,,$(subst sw/,,$(subst common,,$(dirs)))) 
+PROJ?= 
+
 
 verilator ?= 1
 top       ?= 0
@@ -38,7 +40,7 @@ endif
 
 MAKE_FLAGS = rv32c=$(rv32c) rv32e=$(rv32e) rv32b=$(rv32b)
 
-.PHONY: $(SUBDIRS) tools tests coverage
+.PHONY: $(SUBDIRS) tools tests coverage create-srv32-project
 
 help:
 	@echo "make all         build all diags and run the RTL sim"
@@ -135,3 +137,18 @@ tmp_debug:
 	@echo "DIRS: $(dirs)"
 	@echo "SUBDIRS: $(SUBDIRS)"
 	@echo "MY_PROJECTSDIRS: $(PROJECT_SUBDIRS)"
+
+check-proj:
+	@if [ -z "$(PROJ)" ]; then \
+		echo "Please set PROJ variable to the project name"; \
+		exit 1; \
+	fi
+	@if [ ! -d "proj_make" ]; then \
+		echo "Please run 'make create-srv32-project' first"; \
+		exit 1; \
+	fi
+
+create-srv32-project:
+	@$(MAKE) check-proj
+	@echo "Creating project directory 'proj_make' for $(PROJ)"
+	@$(MAKE) -C proj_make PROJ=$(PROJ)
