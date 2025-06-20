@@ -6,7 +6,7 @@ endif
 #==========================================I HAVE ADDED THIS==========================================
 BASE_DIR ?= /home/nikhil/Nikhil/ElectronicsDev/RISC-V/SRV32/sw_progs
 my_project_dirs = $(dir $(wildcard $(BASE_DIR)/*/))
-PROJECT_SUBDIRS = $(subst /,,$(subst $(BASE_DIR)/,,$(my_project_dirs)))
+PROJECT_SUBDIRS = $(subst sw,, $(subst /,,$(subst $(BASE_DIR)/,,$(my_project_dirs))))
 #==================================================================================================
 
 dirs        = $(dir $(wildcard sw/[^_]*/))
