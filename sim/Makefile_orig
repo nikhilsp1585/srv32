@@ -64,7 +64,7 @@ BFLAGS      = $(if $(_top), -D SINGLE_RAM=1) \
               $(if $(_rv32c), -DRV32C_ENABLED=1)
 endif
 
-FILELIST    = -f filelist.txt $(if $(_top), ../rtl/top_s.v, ../rtl/top.sv)
+FILELIST    = -f filelist.txt $(if $(_top), ../rtl/top_s.v, ../rtl/top.v)
 
 all: $(TARGET)
 
@@ -78,7 +78,7 @@ $(TARGET):
 	@if [ ! -f ../sw/$*/$*.elf ]; then \
 		make -C ../sw $*; \
 	fi
-	$(STDBUF) ./$(TARGET) $(RFLAGS) ../sw/$*/$*.elf | awk -f $(filter %.awk, $^)
+	@$(STDBUF) ./$(TARGET) $(RFLAGS) ../sw/$*/$*.elf | awk -f $(filter %.awk, $^)
 	@if [ -f coverage.dat ]; then \
 		mv coverage.dat $*_cov.dat; \
 	fi

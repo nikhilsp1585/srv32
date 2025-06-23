@@ -1,5 +1,5 @@
 #include <signal.h>
-#include "Vsrv32_wrapper.h"
+#include "Vriscv.h"
 #include "verilated.h"
 
 #define HAVE_CHRONO
@@ -89,7 +89,7 @@ int main(int argc, char** argv)
         elf_loaded = 1;
     }
 
-    Vsrv32_wrapper *top = new Vsrv32_wrapper;
+    Vriscv *top = new Vriscv;
 
     top->stall  = 1;
     top->resetb = 0;

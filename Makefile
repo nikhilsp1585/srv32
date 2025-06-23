@@ -6,6 +6,8 @@ endif
 dirs        = $(dir $(wildcard sw/[^_]*/))
 SUBDIRS     = $(subst /,,$(subst sw/,,$(subst common,,$(dirs)))) 
 PROJ?= 
+MODIFIED_RTL_DIR = /home/nikhil/Nikhil/ElectronicsDev/RISC-V/IITD_Internship/Projects/srv32_v_extension/srv32_v_extension.srcs/sources_1/new
+SRV32_RTL_DIR = /home/nikhil/srv32-build/srv32/rtl
 
 
 verilator ?= 1
@@ -98,7 +100,7 @@ build:
 
 $(SUBDIRS):
 	@$(MAKE) $(MAKE_FLAGS) memsize=$(memsize) -C sw $@
-	@$(MAKE) $(if $(_verilator), verilator=1) \
+	$(MAKE) $(if $(_verilator), verilator=1) \
 			 $(if $(_coverage), coverate=1) \
 			 $(if $(_top), top=1) $(MAKE_FLAGS) memsize=$(memsize) debug=$(debug) -C sim $@.elf
 	@$(MAKE) $(if $(_top), top=1) $(MAKE_FLAGS) memsize=$(memsize) tracelog=1 -C tools $@.elf
@@ -152,3 +154,6 @@ create-srv32-project:
 	@$(MAKE) check-proj
 	@echo "Creating project directory 'proj_make' for $(PROJ)"
 	@$(MAKE) -C proj_make PROJ=$(PROJ)
+
+update-srv32-rtl:
+	cp -r -v $(MODIFIED_RTL_DIR)/* $(SRV32_RTL_DIR)

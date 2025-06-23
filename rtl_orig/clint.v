@@ -1,4 +1,3 @@
-`timescale 1ns/1ps
 // Copyright © 2020 Kuoping Hsu
 // Three pipeline stage RV32IM RISCV processor
 //

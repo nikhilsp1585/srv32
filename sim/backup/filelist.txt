@@ -6,10 +6,9 @@
 //+define+RV32C_ENABLED=1
 //+define+MEMSIZE=128
 //+define+SINGLE_RAM
-../rtl/srv32_wrapper.sv
-../rtl/srv32_core.v
 ../rtl/clint_wrapper.sv
 ../rtl/clint.v
-../rtl/cv_xif.sv
+../rtl/srv32_core.v
+../rtl/srv32_wrapper.sv
 ../testbench/testbench.v
 ../testbench/memmodel.v

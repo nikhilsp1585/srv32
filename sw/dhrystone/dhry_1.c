@@ -147,9 +147,9 @@ main ()
   Begin_Time = (long) time_info.tms_utime;
 #endif
 #ifdef TIME
-  Begin_Time = time ( (long *) 0);
+  Begin_Time = time ( );
 #ifdef RISCV
-  Begin_Insn = insn ( (long *) 0);
+  Begin_Insn = insn ( );
 #endif
 #endif
 
@@ -180,7 +180,7 @@ main ()
     for (Ch_Index = 'A'; Ch_Index <= Ch_2_Glob; ++Ch_Index)
                              /* loop body executed twice */
     {
-      if (Enum_Loc == Func_1 (Ch_Index, 'C'))
+      if (Enum_Loc == Func_1 ())
           /* then, not executed */
         {
         Proc_6 (Ident_1, &Enum_Loc);
@@ -208,9 +208,9 @@ main ()
   End_Time = (long) time_info.tms_utime;
 #endif
 #ifdef TIME
-  End_Time = time ( (long *) 0);
+  End_Time = time ( );
 #ifdef RISCV
-  End_Insn = insn ( (long *) 0);
+  End_Insn = insn ( );
 #endif
 #endif
 
