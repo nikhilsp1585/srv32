@@ -56,9 +56,15 @@ module srv32_wrapper #(
     input  logic        dmem_rvalid,
     output logic [31:0] dmem_raddr,
     input  logic        dmem_rresp,
-    input  logic [31:0] dmem_rdata
+    input  logic [31:0] dmem_rdata,
 
     //cv_xif signals
+    cv_xif.cpu_issue xif_issue_if,
+    cv_xif.cpu_register xif_reg_if,
+    cv_xif.commit xif_commit_if,
+    cv_xif.mem xif_mem_if,
+    cv_xif.cpu_mem_result xif_mem_result_if,
+    cv_xif.cpu_result xif_result_if
 );
 
     srv32_core #(
@@ -66,7 +72,7 @@ module srv32_wrapper #(
         .RV32E (RV32E),
         .RV32B (RV32B),
         .RV32C (RV32C)
-    ) srv32_core (
+    ) srv32 (
         .clk                (clk),
         .resetb             (resetb),
 

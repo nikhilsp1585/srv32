@@ -60,7 +60,14 @@ module srv32_top #(
     input  logic        dmem_rresp,
     input  logic [31:0] dmem_rdata,
 
-    output logic ex_irq
+    output logic ex_irq,
+    
+    cv_xif.cpu_issue xif_issue_if,
+    cv_xif.cpu_register xif_reg_if,
+    cv_xif.commit xif_commit_if,
+    cv_xif.mem xif_mem_if,
+    cv_xif.cpu_mem_result xif_mem_result_if,
+    cv_xif.cpu_result xif_result_if    
 );
 
   `include "opcode.vh"
@@ -116,7 +123,7 @@ module srv32_top #(
       .RV32E(RV32E),
       .RV32B(RV32B),
       .RV32C(RV32C)
-  ) u_core (
+  ) srv32_core (
       .clk   (clk),
       .resetb(resetb),
 
@@ -144,7 +151,14 @@ module srv32_top #(
       .dmem_rvalid(drvalid),
       .dmem_raddr (draddr),
       .dmem_rresp (drresp),
-      .dmem_rdata (drdata)
+      .dmem_rdata (drdata),
+      
+      .xif_issue_if        (xif_issue_if),
+      .xif_commit_if       (xif_commit_if),
+      .xif_reg_if          (xif_reg_if),
+      .xif_mem_if          (xif_mem_if),
+      .xif_mem_result_if   (xif_mem_result_if),
+      .xif_result_if       (xif_result_if)
   );
 
   assign twready = dwready && (dwaddr[31:28] == CLINT_BASE);
