@@ -25,7 +25,7 @@
 // ============================================================
 
 
-module top #(
+module srv32_top #(
     parameter RV32M = 1,
     parameter RV32E = 0,
     parameter RV32B = 0,
