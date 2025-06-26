@@ -39,7 +39,7 @@ module srv32_wrapper #(
     input interrupt,
 
     // interface of instruction RAM
-    output logic        imem_ready,
+    output logic        instr_req_o,
     input  logic        imem_valid,
     output logic [31:0] imem_addr,
     input  logic        imem_rresp,
@@ -58,7 +58,7 @@ module srv32_wrapper #(
     input  logic        dmem_rresp,
     input  logic [31:0] dmem_rdata,
 
-    // cv_xif signals
+    //cv_xif signals
     cv_xif.cpu_issue xif_issue_if,
     cv_xif.cpu_register xif_reg_if,
     cv_xif.cpu_commit xif_commit_if,
@@ -84,7 +84,7 @@ module srv32_wrapper #(
         .sw_irq             (sw_irq),
         .interrupt          (interrupt),
 
-        .imem_ready         (imem_ready),
+        .instr_req_o        (instr_req_o),
         .imem_valid         (imem_valid),
         .imem_addr          (imem_addr),
         .imem_rresp         (imem_rresp),

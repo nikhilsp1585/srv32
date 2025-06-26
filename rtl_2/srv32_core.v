@@ -47,7 +47,7 @@ module srv32_core #(
     input                   interrupt,
 
     // interface of instruction RAM
-    output                  imem_ready,
+    output                  instr_req_o,
     input                   imem_valid,
     output          [31: 0] imem_addr,
     input                   imem_rresp,
@@ -192,8 +192,8 @@ always @(posedge clk or negedge resetb) begin
     end else begin
         stall_r             <= stall;
         flush               <= stall_r;
-        // $monitor("Time=%0t | wb_stall=%b | stall_r=%b | wb_memwr=%b | dmem_wvalid=%b | wb_mem2reg=%b | dmem_rresp=%b",
-            //  $time, wb_stall, stall_r, wb_memwr, dmem_wvalid, wb_mem2reg, dmem_rresp);
+        $monitor("Time=%0t | wb_stall=%b | stall_r=%b | wb_memwr=%b | dmem_wvalid=%b | wb_mem2reg=%b | dmem_rresp=%b",
+             $time, wb_stall, stall_r, wb_memwr, dmem_wvalid, wb_mem2reg, dmem_rresp);
     end
 end
 
@@ -386,7 +386,7 @@ assign result_jal           = ex_pc + ex_imm;
 assign result_jalr          = alu_op1 + ex_imm;
 
 always @* begin
-    // $monitor("@%t ex_flush:%h |\t branch_taken:%h |\ ex_trap:%h |\t wb_branch:%h |\t wb_branch_next:%h",$time,ex_flush, branch_taken, ex_trap ,wb_branch, wb_branch_nxt);
+    $monitor("@%t ex_flush:%h |\t branch_taken:%h |\ ex_trap:%h |\t wb_branch:%h |\t %wb_branch_next:%h",$time,ex_flush, branch_taken, ex_trap ,wb_branch, wb_branch_nxt);
     branch_taken  = !ex_flush;
     next_pc       = fetch_pc + `IF_NEXT_PC;
     ex_ill_branch = 1'b0;

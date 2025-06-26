@@ -1,3 +1,4 @@
+-I../rtl/vicuna_rtl
 +incdir+../rtl
 +define+TRACE
 //+define+RV32M_ENABLED=1
@@ -6,10 +7,10 @@
 //+define+RV32C_ENABLED=1
 //+define+MEMSIZE=128
 //+define+SINGLE_RAM
+../rtl/vicuna_rtl/vproc_pkg.sv
+../rtl/vicuna_rtl/vproc_config.sv
+../rtl/srv32_top.sv
 ../rtl/srv32_wrapper.sv
-../rtl/srv32_core.v
-../rtl/clint_wrapper.sv
-../rtl/clint.v
-../rtl/cv_xif.sv
-../testbench/testbench.v
+../testbench/testbench.sv
 ../testbench/memmodel.v
+

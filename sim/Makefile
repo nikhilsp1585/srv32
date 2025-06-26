@@ -46,7 +46,8 @@ ifeq ($(rv32c),1)
 endif
 
 ifeq ($(verilator),1)
-BFLAGS      = -O3 -cc -Wall -Wno-STMTDLY -Wno-UNUSED \
+BFLAGS      = -O3 -cc -Wall -sv -Wno-STMTDLY -Wno-UNUSED -Wno-TIMESCALEMOD -Wno-PINCONNECTEMPTY -Wno-UNSIGNED\
+                -Wno-WIDTH -Wno-SYMRSVDWORD -Wno-UNDRIVEN \
               +define+MEMSIZE=$(memsize) \
               $(if $(_top), +define+SINGLE_RAM) \
               $(if $(_rv32m), +define+RV32M_ENABLED) \
@@ -64,18 +65,21 @@ BFLAGS      = $(if $(_top), -D SINGLE_RAM=1) \
               $(if $(_rv32c), -DRV32C_ENABLED=1)
 endif
 
-FILELIST    = -f filelist.txt $(if $(_top), ../rtl/top_s.v, ../rtl/top.sv)
+TOP_MODULE_FLAG = --top-module srv32_top
+
+FILELIST    =  -f filelist.txt #$(if $(_top), ../rtl/top_s.v, ../rtl/srv32_top.sv) 
 
 all: $(TARGET)
 
 $(TARGET):
-	CXXFLAGS=-DMEMSIZE=$(memsize) $(TARGET_SIM) $(BFLAGS) -o $(TARGET) $(FILELIST)
-	@if [ "$(verilator)" = "1" ]; then \
+	CXXFLAGS=-DMEMSIZE=$(memsize) $(TARGET_SIM) $(BFLAGS) -o $(TARGET) $(FILELIST) 
+	if [ "$(verilator)" = "1" ]; then \
+        echo "Building with Verilator... "; \
 		mv sim_cc/sim .; \
 	fi
 
 %.elf: $(TARGET) checkcode.awk
-	@if [ ! -f ../sw/$*/$*.elf ]; then \
+	if [ ! -f ../sw/$*/$*.elf ]; then \
 		make -C ../sw $*; \
 	fi
 	$(STDBUF) ./$(TARGET) $(RFLAGS) ../sw/$*/$*.elf | awk -f $(filter %.awk, $^)

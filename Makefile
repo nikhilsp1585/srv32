@@ -99,7 +99,7 @@ build:
 	done
 
 $(SUBDIRS):
-	@$(MAKE) $(MAKE_FLAGS) memsize=$(memsize) -C sw $@
+	$(MAKE) $(MAKE_FLAGS) memsize=$(memsize) -C sw $@
 	$(MAKE) $(if $(_verilator), verilator=1) \
 			 $(if $(_coverage), coverate=1) \
 			 $(if $(_top), top=1) $(MAKE_FLAGS) memsize=$(memsize) debug=$(debug) -C sim $@.elf
