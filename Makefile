@@ -6,9 +6,6 @@ endif
 dirs        = $(dir $(wildcard sw/[^_]*/))
 SUBDIRS     = $(subst /,,$(subst sw/,,$(subst common,,$(dirs)))) 
 PROJ?= 
-MODIFIED_RTL_DIR = /home/nikhil/Nikhil/ElectronicsDev/RISC-V/IITD_Internship/Projects/srv32_v_extension/srv32_v_extension.srcs/sources_1/new
-SRV32_RTL_DIR = /home/nikhil/srv32-build/srv32/rtl
-
 
 verilator ?= 1
 top       ?= 0
@@ -156,5 +153,3 @@ create-srv32-project:
 	@echo "Creating project directory 'proj_make' for $(PROJ)"
 	@$(MAKE) -C proj_make PROJ=$(PROJ)
 
-update-srv32-rtl:
-	cp -r -v $(MODIFIED_RTL_DIR)/* $(SRV32_RTL_DIR)
