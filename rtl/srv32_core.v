@@ -32,7 +32,17 @@ module srv32_core #(
     parameter RV32M = 1,
     parameter RV32E = 0,
     parameter RV32B = 0,
-    parameter RV32C = 0
+    parameter RV32C = 0,
+    parameter X_NUM_RS               = 2,  // Number of register file read ports that can be used by the eXtension interface
+    parameter X_ID_WIDTH = 4,  // Width of ID field.
+    parameter X_RFR_WIDTH            = 32, // Register file read access width for the eXtension interface
+    parameter X_RFW_WIDTH            = 32, // Register file write access width for the eXtension interface
+    parameter logic [25:0] X_MISA = '0,  // MISA extensions implemented on the eXtension interface
+    parameter X_DUALREAD             = 0,  // Is dual read supported? 0: No, 1: Yes, for ``rs1``, 2: Yes, for ``rs1`` - ``rs2``, 3: Yes, for ``rs1`` - ``rs3``
+    parameter X_DUALWRITE = 0,  // Is dual write supported? 0: No, 1: Yes.
+    parameter X_ISSUE_REGISTER_SPLIT = 0,  // Does the interface pipeline register interface? 0: No, 1: Yes.
+    parameter X_MEM_WIDTH = 32
+
 )(
     input                   clk,
     input                   resetb,
@@ -64,7 +74,81 @@ module srv32_core #(
     input                   dmem_rvalid,
     output          [31: 0] dmem_raddr,
     input                   dmem_rresp,
-    input           [31: 0] dmem_rdata
+    input           [31: 0] dmem_rdata,
+
+    // XIF Interface signals
+
+    // Issue Interface /////////////////////////////////////////////////////////////////////////////////
+    output                            xif_issue_valid,                    // Issue request valid
+    input                             xif_issue_ready,                    // Issue request ready
+    // x_issue_req_t 
+    output [31:0]                     xif_issue_req_instr,                // Offloaded instruction
+    output [1:0]                      xif_issue_req_mode,                 // Effective Privilege level, as used for load and store instructions.
+    output [X_ID_WIDTH-1:0]           xif_issue_req_id,                   // Identification of the offloaded instruction
+    // x_issue_resp_t
+    input                             xif_issue_resp_accept,              // Is the offloaded instruction (id) accepted by the coprocessor?
+    input [X_DUALWRITE:0]             xif_issue_resp_writeback,           // Will the coprocessor perform a writeback in the core to rd?
+    // input [X_NUM_RS+X_DUALREAD-1:0]   issue_resp_readerflags,         // Will the coprocessor perform require specific registers to be read?
+    input                             xif_issue_resp_loadstore,           // Is the offloaded instruction a load/store instruction?
+    input                             xif_dualwrite,
+    input [2:0]                       xif_dualread,
+    input                             xif_exc,
+    // Register Interface //////////////////////////////////////////////////////////////////////////
+    output                            xif_register_valid,                 // Register request valid. 
+    input                             xif_register_ready,                 // Register request ready.
+    // x_register_t
+    output [X_ID_WIDTH-1:0]           xif_register_id,                    // Identification of the offloaded instruction.
+    output [X_RFR_WIDTH-1:0][X_NUM_RS-1:0]  xif_register_rs,                    // Register file source 
+    output [X_NUM_RS+X_DUALREAD-1:0]  xif_register_rs_valid,              // Validity of the register file source operand(s).
+        
+    // Commit Interface
+    output                            xif_commit_valid,                   //Commit request valid.
+    //x_commit_t
+    output [X_ID_WIDTH-1:0]           xif_commit_id,                      // Identification of the offloaded instruction. 
+    output                            xif_commit_kill,                    // Shall an offloaded instruction be killed?
+    
+
+    // Memory (request/response) Interface ///////////////////////////////////////////////////////////////
+    input                             xif_mem_valid,                      // Memory (request/response) valid. 
+    output                            xif_mem_ready,                      // Memory (request/response) ready.
+    // x_mem_req_t
+    input [X_ID_WIDTH-1:0]            xif_mem_req_id,                     // Identification of the offloaded instruction
+    input [31:0]                      xif_mem_req_addr,                   // Virtual address of the memory transaction
+    input [1:0]                       xif_mem_req_mode,                   // Privilege level
+    input                             xif_mem_req_we,                     // Write enable of the memory transaction
+    input [2:0]                       xif_mem_req_size,                   // Size of the memory transaction.
+    input [X_MEM_WIDTH/8-1:0]         xif_mem_req_be,                     // Byte enables for memory transaction.
+    input [1:0]                       xif_mem_req_attr,                   // Memory transaction attributes.
+    input [X_MEM_WIDTH-1:0]           xif_mem_req_wdata,                  // Write data of a store memory transaction
+    input                             xif_mem_req_last,                   // Is this the last memory transaction for the offloaded instruction?
+    input                             xif_mem_req_spec,                   // Is the memory transaction speculative?
+    // x_mem_resp_t
+    output                            xif_mem_resp_exc,                   // Did the memory request cause a synchronous exception?
+    output [5:0]                      xif_mem_resp_excode,                // Exception code.
+    output                            xif_mem_resp_dbg,                   // Did the memory request cause a debug trigger match with ``mcontrol.timing`` = 0?
+
+          
+    // Memory Result Interface ////////////////////////////////////////////////////////////////
+    output                            xif_mem_result_valid,               // Memory result valid.
+    // x_mem_result_t
+    output [X_ID_WIDTH-1:0]           xif_mem_result_id,                  // Identification of the offloaded instruction.
+    output [X_MEM_WIDTH-1:0]          xif_mem_result_rdata,               // Read data of a read memory transaction. Only used for reads.
+    output                            xif_mem_result_err,                 // Did the instruction cause a bus error?
+    output                            xif_mem_result_dbg,                 // Did the read data cause a debug trigger match with ``mcontrol.timing`` = 0?
+           
+    // Result Interface ////////////////////////////////////////////////////////////////////////   
+    input                             xif_result_valid,                   // Result request valid.
+    output                            xif_result_ready,                   // Result request ready.
+    // x_result_t
+    input [X_ID_WIDTH-1:0]            xif_result_id,                      // Identification of the offloaded instruction
+    input [X_RFW_WIDTH-1:0]           xif_result_data,                    // Register file write data value(s)
+    input [4:0]                       xif_result_rd,                      // Register file destination address(es)
+    input [X_DUALWRITE:0]             xif_result_we,                      // Register file write enable(s)
+    input                             xif_result_exc,                     // Did the instruction cause a synchronous exception?
+    input [5:0]                       xif_result_excode,                  // Exception code
+    input                             xif_result_dbg,                     // Did the instruction cause a debug trigger match with ``mcontrol.timing`` = 0?
+    input                             xif_result_err                     // Did the instruction cause a bus error?     
+
 );
 
     `include "opcode.vh"
@@ -165,7 +249,7 @@ module srv32_core #(
     reg             [31: 0] csr_mtval;
 
     //vector instr support nets, regs
-    reg id_illegal_v_d; //decod/recognize the vector instructions (OP_VLOAD, OP_VSTORE, Vecto Artihmetic and Vector configuration Instructions)
+    wire id_illegal_v_d; //decod/recognize the vector instructions (OP_VLOAD, OP_VSTORE, Vecto Artihmetic and Vector configuration Instructions)
     reg id_illegal_v_q; 
 
     integer                 i;
@@ -219,7 +303,7 @@ end
 ////////////////////////////////////////////////////////////
     reg             [31: 0] imm;
     
-assign id_illegal_v_q = (inst[`OPCODE] == OP_VLOAD) || (inst[`OPCODE] == OP_VSTORE) || (inst[`OPCODE] == OP_VOPV); 
+assign id_illegal_v_d = (inst[`OPCODE] == OP_VLOAD) || (inst[`OPCODE] == OP_VSTORE) || (inst[`OPCODE] == OP_VOPV); 
 
 always @* begin
     case(inst[`OPCODE])
@@ -263,7 +347,7 @@ always @(posedge clk or negedge resetb) begin
         ex_illegal          <= 1'b0;
         ex_mul              <= 1'b0;
     end else if (!if_stall) begin
-        id_illegal_v_d <= id_illegal_v_q;
+        id_illegal_v_q      <= id_illegal_v_d;
         ex_imm              <= imm;
         ex_imm_sel          <= (inst[`OPCODE] == OP_JALR  ) ||
                                (inst[`OPCODE] == OP_LOAD  ) ||
@@ -322,18 +406,12 @@ always @(posedge clk or negedge resetb) begin
     end
 end
 
-//decoding (only recoginizing) vector instruction 
-// always @(*) begin
-//     id_vinstr = ( (inst[`OPCODE] == OP_VLOAD) ||
-//                         (inst[`OPCODE] == OP_VSTORE) ||
-//                         (inst[`OPCODE] == OP_VOPV) );
-// end
-
 `ifndef SYNTHESIS
 always @* begin
-    if (ex_illegal && !ex_flush && !id_illegal_v_d)
+    if (ex_illegal && !ex_flush && !id_illegal_v_q)
         $display("Illegal instruction at PC 0x%08x", ex_pc[31: 0]);
-    else if(id_illegal_v_d) $display("Vector instruction at PC 0x%08x", ex_pc[31: 0]);
+
+    // if(id_illegal_v_d) $display("@%t Vector instruction at PC 0x%08x",$time , if_pc[31: 0]);
 
     if (ex_ill_branch && !ex_flush)
         $display("Illegal branch instruction at PC 0x%08x", ex_pc[31: 0]);
@@ -356,6 +434,29 @@ always @(posedge clk or negedge resetb) begin
         ex_insn             <= inst;
     end
 end
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//IF_ID XIF Interfacing
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+reg xif_accepted_q, xif_rejected_q;
+wire xif_isntr_accepted, xif_instr_rejected;
+
+always @(posedge clk or negedge resetb) begin
+    if(!resetb) begin
+        xif_accepted_q     <= 1'b0;
+        xif_rejected_q     <= 1'b0;
+    end else begin
+        xif_accepted_q     <= xif_isntr_accepted;
+        xif_rejected_q     <= xif_instr_rejected;
+    end
+end
+
+assign xif_issue_valid = !if_stall && id_illegal_v_d  && !(xif_accepted_q || xif_rejected_q);
+
+assign xif_isntr_accepted = (xif_issue_valid && xif_issue_ready &&  xif_issue_resp_accept) || xif_accepted_q;
+assign xif_instr_rejected = (xif_issue_valid && xif_issue_ready && !xif_issue_resp_accept) || xif_rejected_q;
 
 ////////////////////////////////////////////////////////////
 // stage 2: execute
