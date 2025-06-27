@@ -1,4 +1,3 @@
-
 ifndef CROSS_COMPILE
 export CROSS_COMPILE = riscv64-unknown-elf-
 endif
