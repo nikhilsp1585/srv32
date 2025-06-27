@@ -164,6 +164,10 @@ module srv32_core #(
     reg             [31: 0] csr_mcause;
     reg             [31: 0] csr_mtval;
 
+    //vector instr support nets, regs
+    reg id_illegal_v_d; //decod/recognize the vector instructions (OP_VLOAD, OP_VSTORE, Vecto Artihmetic and Vector configuration Instructions)
+    reg id_illegal_v_q; 
+
     integer                 i;
 
 assign if_insn              = imem_rdata;
@@ -214,6 +218,8 @@ end
 // stage 1: fetch/decode
 ////////////////////////////////////////////////////////////
     reg             [31: 0] imm;
+    
+assign id_illegal_v_q = (inst[`OPCODE] == OP_VLOAD) || (inst[`OPCODE] == OP_VSTORE) || (inst[`OPCODE] == OP_VOPV); 
 
 always @* begin
     case(inst[`OPCODE])
@@ -257,6 +263,7 @@ always @(posedge clk or negedge resetb) begin
         ex_illegal          <= 1'b0;
         ex_mul              <= 1'b0;
     end else if (!if_stall) begin
+        id_illegal_v_d <= id_illegal_v_q;
         ex_imm              <= imm;
         ex_imm_sel          <= (inst[`OPCODE] == OP_JALR  ) ||
                                (inst[`OPCODE] == OP_LOAD  ) ||
@@ -315,10 +322,19 @@ always @(posedge clk or negedge resetb) begin
     end
 end
 
+//decoding (only recoginizing) vector instruction 
+// always @(*) begin
+//     id_vinstr = ( (inst[`OPCODE] == OP_VLOAD) ||
+//                         (inst[`OPCODE] == OP_VSTORE) ||
+//                         (inst[`OPCODE] == OP_VOPV) );
+// end
+
 `ifndef SYNTHESIS
 always @* begin
-    if (ex_illegal && !ex_flush)
+    if (ex_illegal && !ex_flush && !id_illegal_v_d)
         $display("Illegal instruction at PC 0x%08x", ex_pc[31: 0]);
+    else if(id_illegal_v_d) $display("Vector instruction at PC 0x%08x", ex_pc[31: 0]);
+
     if (ex_ill_branch && !ex_flush)
         $display("Illegal branch instruction at PC 0x%08x", ex_pc[31: 0]);
 end

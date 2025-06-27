@@ -67,7 +67,7 @@ endif
 
 TOP_MODULE_FLAG = --top-module srv32_top
 
-FILELIST    =  -f filelist.txt #$(if $(_top), ../rtl/top_s.v, ../rtl/srv32_top.sv) 
+FILELIST    =  -f filelist.txt #$(if $(_top), ../rtl/top_s.v, ../rtl/srv32_top.sv)  GIVE FROM FILELIST.TXT
 
 all: $(TARGET)
 

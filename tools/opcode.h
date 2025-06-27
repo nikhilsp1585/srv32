@@ -332,6 +332,14 @@ enum {
     OP_ROR          = 5,
 };
 
+
+// constant on inst[6:0] for V Extension
+enum{
+    OP_VLOAD = 0x07, //Vector load instructions under LOAD-FP major opcode
+    OP_VSTORE = 0x27, //Vector store instructions under STORE-FP major opcode
+    OP_VOPV = 0x57//Vector Arithmetic & Vector Confiiguration instructions under OP-V major opcode
+};
+
 enum {
     CSR_MVENDORID   = 0xF11,    // Vender ID
     CSR_MARCHID     = 0xF12,    // Architecture ID

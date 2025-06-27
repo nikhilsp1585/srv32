@@ -1822,6 +1822,19 @@ int srv32_step(struct rv *rv) {
             }
             break;
         }
+        //Vector Instruction
+        case OP_VLOAD:
+            printf("Vector Load Instruction Detected.\n");
+            break;
+
+        case OP_VSTORE:
+            printf("Vector Store Instruction Detected.\n");
+            break;
+
+        case OP_VOPV:
+            printf("Vector Store Instruction Detected.\n");
+            break;
+
         default: {
             printf("Illegal instruction at PC 0x%08x\n", rv->pc);
             TIME_LOG; TRACE_LOG "%08x %08x\n", rv->pc, inst.inst

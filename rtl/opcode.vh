@@ -242,3 +242,12 @@ localparam  [31: 0] MTIME_BASE    = 32'h9000_0000,
                     MMIO_TOHOST   = 32'hA000_0030,
                     MMIO_FROMHOST = 32'hA000_0034;
 
+//Vector Instructions OPCODE
+localparam [6:0] OP_VLOAD = 7'b0000111, //Vector load instructions under LOAD-FP major opcode
+                 OP_VSTORE = 7'b0100111, //Vector store instructions under STORE-FP major opcode
+                 OP_VOPV = 7'b1010111; //Vector Arithmetic & Vector Confiiguration instructions under OP-V major opcode
+                
+
+                
+
+

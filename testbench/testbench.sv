@@ -43,7 +43,6 @@
         input           resetb,
         input           stall
     );
-    initial $display("Verilator simulation"); 
 `else
 
     `define MEMSIZE  256
